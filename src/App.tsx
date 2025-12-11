@@ -38,9 +38,10 @@ function App() {
       const generatedQuestions = await generateExam(pdfText, config);
       setQuestions(generatedQuestions);
       setStep('exam');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Gemini Error:", error);
-      alert("Failed to generate exam. The AI might be busy or the content is too long.");
+      // Alert the specific error message to see what's wrong
+      alert(`Failed to generate exam: ${error.message}`); 
     } finally {
       setIsLoading(false);
     }

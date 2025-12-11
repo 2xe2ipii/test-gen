@@ -3,6 +3,7 @@ import type { ExamConfigData, Question } from "../types";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
+// Simple check to ensure key exists
 if (!API_KEY) {
   console.error("Missing Gemini API Key");
 }
@@ -10,30 +11,33 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export const generateExam = async (textContext: string, config: ExamConfigData): Promise<Question[]> => {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  // UPDATED: 'gemini-1.5-flash' is retired. Using the current 'gemini-2.5-flash'.
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash", 
+    generationConfig: {
+      responseMimeType: "application/json",
+    }
+  });
 
   const prompt = `
-    You are an expert exam creator. Create a structured exam based strictly on the provided text.
+    Create an exam based strictly on the provided text.
     
     Configuration:
-    - Total Questions: ${config.totalItems}
-    - Multiple Choice: ${config.distribution.multipleChoice}
-    - Identification: ${config.distribution.identification}
-    - Fill in the Blanks: ${config.distribution.fillInTheBlanks}
+    - Total Items: ${config.totalItems}
+    - Multiple Choice Questions: ${config.distribution.multipleChoice}
+    - Identification Questions: ${config.distribution.identification}
+    - Fill in the Blanks Questions: ${config.distribution.fillInTheBlanks}
     
-    Output Format:
-    Return ONLY a raw JSON array. Do not use Markdown formatting (no \`\`\`json). 
-    The array should contain objects with this structure:
-    {
-      "id": number (sequence starting from 1),
-      "type": "multiple-choice" | "identification" | "fill-in-the-blanks",
-      "question": "string",
-      "options": ["string", "string", "string", "string"] (ONLY for multiple-choice, include 4 options),
-      "correctAnswer": "string" (Must match one of the options exactly if multiple-choice)
-    }
+    Structure:
+    Return a JSON Array of objects with these keys:
+    - id (number)
+    - type (string: "multiple-choice", "identification", or "fill-in-the-blanks")
+    - question (string)
+    - options (array of strings, ONLY for multiple-choice)
+    - correctAnswer (string)
 
-    Text Content to base questions on:
-    ${textContext.substring(0, 50000)} 
+    Text Content:
+    ${textContext.substring(0, 50000)}
   `;
 
   try {
@@ -41,12 +45,12 @@ export const generateExam = async (textContext: string, config: ExamConfigData):
     const response = await result.response;
     const text = response.text();
     
-    // Clean the text just in case the AI adds markdown blocks
-    const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    return JSON.parse(cleanedText) as Question[];
-  } catch (error) {
-    console.error("Error generating exam:", error);
-    throw error;
+    console.log("Gemini Raw Response:", text);
+
+    return JSON.parse(text) as Question[];
+  } catch (error: any) {
+    console.error("Gemini API Error:", error);
+    // If 2.5 fails, it might be a region issue, but 1.5 is definitely dead.
+    throw new Error(error.message || "Unknown Gemini API Error");
   }
 };
