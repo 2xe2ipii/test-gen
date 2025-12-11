@@ -6,7 +6,7 @@ import ResultsView from './components/ResultsView';
 import Library from './components/Library';
 import { extractTextFromPDF } from './services/pdfHandler';
 import { generateExam } from './services/gemini';
-import { saveExam, addAttempt } from './services/storage'; // Import storage
+import { saveExam, addAttempt } from './services/storage';
 import type { ExamConfigData, Question, SavedExam } from './types';
 
 type AppStep = 'upload' | 'config' | 'exam' | 'result' | 'library';
@@ -72,7 +72,6 @@ function App() {
     setStep('result');
   };
 
-  // Logic to save a NEW exam from the results screen
   const handleSaveResult = () => {
     if (activeExamId) return; // Already saved
     const saved = saveExam(currentFileName, questions);
@@ -86,12 +85,15 @@ function App() {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div 
-            className="flex items-center gap-2 cursor-pointer" 
+            className="flex items-center gap-3 cursor-pointer" 
             onClick={() => setStep('upload')}
           >
-            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-              T
-            </div>
+            {/* UPDATED LOGO HERE */}
+            <img 
+              src="/logo.png" 
+              alt="TALAS Logo" 
+              className="w-8 h-8 object-contain" 
+            />
             <span className="text-xl font-bold tracking-tight">TALAS</span>
           </div>
           
