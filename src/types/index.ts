@@ -1,4 +1,6 @@
-export interface ExamConfig {
+export type QuestionType = 'multiple-choice' | 'identification' | 'fill-in-the-blanks';
+
+export interface ExamConfigData {
   totalItems: number;
   distribution: {
     multipleChoice: number;
@@ -9,9 +11,14 @@ export interface ExamConfig {
 
 export interface Question {
   id: number;
-  type: 'multiple-choice' | 'identification' | 'fill-in-the-blanks';
+  type: QuestionType;
   question: string;
   options?: string[]; // Only for multiple choice
   correctAnswer: string;
-  userAnswer?: string;
+}
+
+export interface UserAnswer {
+  questionId: number;
+  answer: string;
+  isCorrect: boolean;
 }
