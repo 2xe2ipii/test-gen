@@ -13,12 +13,23 @@ export interface Question {
   id: number;
   type: QuestionType;
   question: string;
-  options?: string[]; // Only for multiple choice
+  options?: string[];
   correctAnswer: string;
 }
 
-export interface UserAnswer {
-  questionId: number;
-  answer: string;
-  isCorrect: boolean;
+// NEW: For tracking history
+export interface ExamAttempt {
+  date: string; // ISO string
+  score: number;
+  total: number;
+}
+
+// NEW: The saved exam object
+export interface SavedExam {
+  id: string; // Unique UUID
+  name: string; // User-editable name (e.g., "Data Structures Midterm")
+  originalPdfName: string;
+  questions: Question[];
+  attempts: ExamAttempt[];
+  createdDate: string;
 }
